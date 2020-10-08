@@ -4,22 +4,23 @@
 #include "io.h"
 #include "utils.h"
 
+
+#define MAX 1000
+
 int main()
 {
     int state = 1;
     int rc = 0;
     int mode;
     char buf[NUM + 2];
-    theatre *arr = NULL;
-    theatre *tmp_realloc = NULL;
+
     char filename[NAME + 3];
-
-    size_t arr_len = 0;
-    size_t arr_capacity = 0;
-    size_t count = 0;
-    int file_state = 0;
-
     FILE *in = NULL;
+    theatre_t arr[MAX];
+    theatre_key_t arr_keys[MAX];
+    size_t arr_len = 0;
+    size_t count = 0;
+    size_t id_count = 0;
 
     while (state)
     {
@@ -31,17 +32,11 @@ int main()
         }
         else
         {
-            memset(buf, 0, NUM + 2);
             switch (mode)
             {
             case EXIT:
                 printf("Спасибо за использования, до скорых встреч.\n");
                 state = 0;
-                output(arr, arr_len, arr_len);
-                if (arr)
-                {
-                    free(arr);
-                }
                 break;
             case LOAD_FILE:
                 printf("Выбран режим ввода данных из файла\n");
@@ -58,71 +53,49 @@ int main()
                     printf("Не удалось открыть файл\n");
                     break;
                 }
-                file_state = 1;
                 rc = cnt_structs(in, &count);
                 if (rc)
                 {
                     fclose(in);
-                    file_state = 0;
                     printf("Ошибка подсчёта структур в файле\n");
                     return rc;
                 }
-                if (!arr)
+                if (count + arr_len > MAX)
                 {
-                    arr = (theatre *)malloc(count * sizeof(theatre));
-                    if (!arr)
-                    {
-                        printf("Ошибка выделения памяти, повторите позже...\n");
-                        fclose(in);
-                        file_state = 0;
-                        break;
-                    }
-                    arr_capacity += count;
-                }
-                if (arr_capacity < arr_len + count)
-                {
-                    tmp_realloc = (theatre *)realloc(arr, count + SIZE_INC);
-                    if (!tmp_realloc)
-                    {
-                        printf("Ошибка выделения памяти, повторите позже...\n");
-                        fclose(in);
-                        file_state = 0;
-                        break;
-                    }
-                    arr = tmp_realloc;
-                    tmp_realloc = NULL;
-                    arr_capacity = arr_capacity + SIZE_INC + count;
+                    fclose(in);
+                    printf("Невозможно записать в таблицу данные,размер превышает MAX\n");
+                    break;
                 }
                 fseek(in, 0, SEEK_SET);
-                rc = read(arr, arr_len, in, count);
+                rc = read(arr, arr_len, in, count, &id_count);
                 if (rc)
                 {
                     fclose(in);
-                    file_state = 0;
                     printf("Ошибка считывания файла\n");
-                    free(arr);
+                    return rc;
+                }
+                if (fill_arr_keys(arr, arr_keys, arr_len, count))
+                {
+                    fclose(in);
+                    printf("Ошибка считывания файла\n");
                     return rc;
                 }
                 arr_len += count;
                 count = 0;
                 printf("Данные файла записаны в массив\n");
-                if (file_state)
-                {
-                    fclose(in);
-                    file_state = 0;
-                }
+                fclose(in);
                 break;
             case ADD_STRUCT:
             {
-                char file[NAME];
-                printf("Введите имя файла для записи.\nЕсли вы хотите добавить запись в массив, наберите 0\n");
-                if (!fgets(file, NAME, stdin))
+                char tmp[NAME];
+                printf("Если вы хотите добавить запись в массив, наберите 0\n");
+                if (!fgets(tmp, NAME, stdin))
                 {
                     printf("Вы ничего не ввели...\n");
                     break;
                 }
-                file[strlen(file) - 1] = '\0';
-                if (!strcmp(file, "0"))
+                tmp[strlen(tmp) - 1] = '\0';
+                if (!strcmp(tmp, "0"))
                 {
                     printf("Введите количество добавляемых записей\n");
                     size_t cnt_add = 0;
@@ -133,26 +106,18 @@ int main()
                         break;
                     }
                     memset(buf, 0, NUM + 2);
-                    if (!arr)
+                    if (cnt_add + arr_len > MAX)
                     {
-                        arr = (theatre *)malloc(sizeof(theatre) * SIZE_INC);
-                        if (!arr)
-                        {
-                            printf("Ошибка выделения памяти, повторите позже...\n");
-                            break;
-                        }
-                        arr_len = 0;
-                        arr_capacity = SIZE_INC;
+                        printf("Невозможно записать в таблицу данные,размер превышает MAX\n");
+                        break;
                     }
-                    theatre *tmp = arr;
-                    rc = add(arr, &tmp, &arr_len, &arr_capacity, cnt_add);
+                    rc = add(arr, &arr_len, cnt_add, arr_keys, &id_count);
                     if (rc)
                     {
-                        free(arr);
                         printf("Ошибка добавления\n");
                         return rc;
                     }
-                    printf("Вы успешно добавили %zu структур", cnt_add);
+                    printf("Вы успешно добавили %zu структур\n", cnt_add);
                     break;
                 }
                 else
@@ -160,30 +125,56 @@ int main()
                     printf("Неверный ключ\n");
                     break;
                 }
-                /*
-                else
-                {
-                    if (!arr)
-                    {
-                        arr = (theatre *)malloc(sizeof(theatre) * SIZE_INC);
-                        if (!arr)
-                        {
-                            printf("Ошибка выделения памяти, повторите позже\n");
-                            break;
-                        }
-                        arr_capacity = SIZE_INC;
-                    }
-                    rc = read(arr, arr_len, stdin, 1);
-                    if (rc)
-                    {
-                        printf("Ошибка ввода, повторите попытку\n");
-                        free(arr);
-                        return rc;
-                    }
-                    arr_len++;
-                }
-                */
             }
+            case DEL_STRUCT:
+            printf("Введите id записи таблицы для удаления");
+            int id = -1;
+            if (!fgets(buf, IND, stdin) || input_num((int *)&id , buf))
+            {
+                printf("Введена некорректная позиция\nПереводим в меню\n");
+                break;
+            }
+            if (!arr_len)
+            {
+                printf("Массив пуст\nПереводим в меню\n");
+                break;
+            }
+            rc = del(arr, &arr_len, arr_keys, id);
+            if (rc)
+            {
+                if (rc == ID_NOT_FOUND)
+                {
+                    printf("Введённый id не найден в таблице\n");
+                    break;
+                }
+                printf("Некорректные данные для удаления\nПереводим в меню\n");
+                break;
+            }
+            printf("Удаление успешно выполнено\n");
+            break;
+            case SORT_KEYS:
+            printf("Сортировка массива ключей без сортировки исходной таблицы за О(n^2)\n");
+            rc = bubble_sort_keys(arr_keys, arr_len);
+            if (rc)
+            {
+                printf("Ошибка сортировки\n");
+                return rc;
+            }
+            break;
+            case SORT_TABLE:
+            printf("Сортировка таблицы без сортировки ключей за О(n^2)\n");
+            rc = bubble_sort(arr, arr_len);
+             if (rc)
+            {
+                printf("Ошибка сортировки\n");
+                return rc;
+            }
+            break;
+            case PRINT_KEYS:
+            print_key_table(arr_keys, arr_len);
+            break;
+            case PRINT_TABLE:
+            output(arr, arr_len, arr_len);
             case LIST_MUSIC_FOR_KIDS:
                 break;
             default:

@@ -9,5 +9,7 @@
 #define ARG_ERR 6
 #define ALLOCATION_ERR 7
 #define PRINT_ERR 8
+#define EMPTY_ARR 9
+#define ID_NOT_FOUND 10
 
 #endif // _ERR_H_

@@ -12,6 +12,11 @@ typedef enum
     EXIT,
     LOAD_FILE,
     ADD_STRUCT,
+    DEL_STRUCT,
+    SORT_KEYS,
+    SORT_TABLE,
+    PRINT_TABLE,
+    PRINT_KEYS,
     LIST_MUSIC_FOR_KIDS
 } MODE;
 /**
@@ -24,14 +29,7 @@ typedef enum
 int input_num(int *num, char string[]);
 int validation_mode(int8_t mode);
 void menu();
-/**
-*@brief Подсчёт количества структур в фалйе
-*
-*@param f Файловая переменная
-*@param cnt Указатель на переменную количества подсчитанных структур
-*@return int Код ошибки
- */
-int cnt_structs(FILE *f, size_t *cnt);
+
 /**
 *@brief Считывание структур из файла в массив
 *
@@ -40,7 +38,7 @@ int cnt_structs(FILE *f, size_t *cnt);
 *@param cnt Количество считываемых структур
 *@return int Кош ошибки
  */
-int input(FILE *f, theatre src[], size_t cnt);
+int input(FILE *f, theatre_t src[], size_t cnt);
 /**
 *@brief Вывод информации из массива
 *
@@ -49,7 +47,7 @@ int input(FILE *f, theatre src[], size_t cnt);
 *@param pos Позиция выводимой структуры, pos == cnt вывести все.
 *@return int Код ошибки
  */
-int output(theatre src[], size_t cnt, size_t pos);
+int output(theatre_t src[], size_t cnt, size_t pos);
 /**
 *@brief Вывод структуры по позиции
 *
@@ -58,14 +56,7 @@ int output(theatre src[], size_t cnt, size_t pos);
 *@return int код ошибки
 *@warning корректность позиции на вызывающей стороне
  */
-void print_pos(theatre src[], size_t pos);
-/**
-*@brief Функция создания записи театра
-*
-*@param tmp указатель на запись
-*@param stream Указатель на поток ввода
- */
-int entry(theatre *tmp, FILE *stream);
+void print_pos(theatre_t src[], size_t pos);
 /**
 *@brief Вывод списка всех
 музыкальных спектаклей для детей возраста age с
@@ -74,8 +65,9 @@ int entry(theatre *tmp, FILE *stream);
 *@param time_lim Верхняя граница времени продолжительности спектакля
 *@return int Код ошибки
  */
-int print_res(theatre src[], int8_t age, int8_t time_lim);
+int print_res(theatre_t src[], int8_t age, int8_t time_lim);
 
-int read(theatre src[], size_t len, FILE *in, size_t cnt);
+
+void print_key_table(theatre_key_t res[], size_t len);
 
 #endif //_IO_H_

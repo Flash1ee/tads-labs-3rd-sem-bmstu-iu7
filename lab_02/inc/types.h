@@ -2,6 +2,7 @@
 #define TYPES_H_
 
 #include <inttypes.h>
+#define IND 5
 /**
 *@brief Длина числа
 *
@@ -10,11 +11,11 @@
 /**
 *@brief Название театра
  */
-#define TITLE 128
+#define TITLE 32
 /**
 *@brief Название представления
  */
-#define SHOW 64
+#define SHOW 32
 /**
 *@brief ФИО композитора
  */
@@ -95,6 +96,7 @@ typedef struct
  */
 typedef struct
 {
+    int id;
     char title[TITLE + 3];
     char show[SHOW + 3];
     char producer[NAME + 3];
@@ -107,6 +109,14 @@ typedef struct
         adult major;
         music sound;
     } choice;
-} theatre;
+} theatre_t;
+
+typedef struct 
+{
+    int min_price;
+    size_t table_ind;
+    theatre_t *main_table;
+} theatre_key_t;
+
 
 #endif //TYPES_H_
