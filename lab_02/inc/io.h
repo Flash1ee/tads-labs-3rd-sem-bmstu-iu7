@@ -15,6 +15,8 @@ typedef enum
     DEL_STRUCT,
     SORT_KEYS,
     SORT_TABLE,
+    SORT_KEYS_QS,
+    SORT_TABLE_QS,
     PRINT_TABLE,
     PRINT_KEYS,
     LIST_MUSIC_FOR_KIDS

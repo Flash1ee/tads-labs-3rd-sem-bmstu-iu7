@@ -71,4 +71,8 @@ void swap_keys(theatre_key_t frst[], theatre_key_t sec[]);
 
 int bubble_sort_keys(theatre_key_t *keys, size_t len);
 
+void quick_sort_keys(theatre_key_t src[], size_t first, size_t last);
+void quick_sort_table(theatre_t src[], size_t first, size_t last);
+
+
 #endif // _UTILS_H_

@@ -49,7 +49,6 @@ int add(theatre_t src[], size_t *len_src, size_t cnt, theatre_key_t arr_key[], s
         src[i + *len_src] = dst[i];
         arr_key[i + *len_src].main_table = &src[i + *len_src];
         arr_key[i + *len_src].min_price = src[i + *len_src].min_price;
-        arr_key[i + *len_src].table_ind = src[i + *len_src].id;
 
     }
     *len_src += cnt;
@@ -65,7 +64,6 @@ int fill_arr_keys(theatre_t src[], theatre_key_t dst[], size_t len, size_t cnt)
     {
         dst[i + len].main_table = &(src[i + len]);
         dst[i + len].min_price = src[i + len].min_price;
-        dst[i + len].table_ind = src[i+len].id;
     }
     return EXIT_SUCCESS;
 }
@@ -234,7 +232,6 @@ int del(theatre_t src[], size_t *len, theatre_key_t dst[], size_t id)
         src[i] = src[i+1];
         dst[i].main_table = dst[i+1].main_table;
         dst[i].min_price = dst[i+1].min_price;
-        dst[i].table_ind = dst[i+1].table_ind;
     }
     *len -= 1;
     return EXIT_SUCCESS;
@@ -266,7 +263,6 @@ void swap_table(theatre_t frst[], theatre_t sec[])
 void swap_keys(theatre_key_t frst[], theatre_key_t sec[])
 {
     theatre_key_t tmp = *frst;
-    theatre_key
     *frst = *sec;
     *sec = tmp;
 }
@@ -288,4 +284,72 @@ int bubble_sort_keys(theatre_key_t *keys, size_t len)
         }
     }
     return EXIT_SUCCESS;
-}   
+} 
+void quick_sort_table(theatre_t src[], size_t first, size_t last)
+{
+    size_t i = first;
+    size_t j = last;
+    int x = src[(first + last) / 2].min_price;
+    do
+    {
+        while (src[i].min_price < x)
+        {
+            i++;
+        }
+        while (src[j].min_price > x)
+        {
+            j--;
+        }
+        if (i <= j)
+        {
+            if (src[i].min_price > src[j].min_price)
+            {
+                swap_table(&src[i], &src[j]);
+            }
+            i++;
+            j--;
+        }
+    } while (i <= j);   
+        if (i < last)
+        {
+            quick_sort_table(src, i, last);
+        }
+        if (first < j)
+        {
+            quick_sort_table(src, first, j);
+        }
+}
+void quick_sort_keys(theatre_key_t src[], size_t first, size_t last)
+{
+    size_t i = first;
+    size_t j = last;
+    int x = src[(first + last) / 2].min_price;
+    while (i <= j)
+    {
+        while (src[i].min_price < x)
+        {
+            i++;
+        }
+        while (src[j].min_price > x)
+        {
+            j--;
+        }
+        if (i <= j)
+        {
+            if (src[i].min_price > src[j].min_price)
+            {
+                swap_keys(&src[i], &src[j]);
+            }
+            i++;
+            j--;
+        }
+    }   
+        if (i < last)
+        {
+            quick_sort_keys(src, i, last);
+        }
+        if (first < j)
+        {
+            quick_sort_keys(src, first, j);
+        }
+}    

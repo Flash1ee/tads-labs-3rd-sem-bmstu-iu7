@@ -170,6 +170,14 @@ int main()
                 return rc;
             }
             break;
+            case SORT_KEYS_QS:
+            printf("Сортировка массива ключей без сортировки исходной таблицы за О(N*log(N))\n");
+            quick_sort_keys(arr_keys, 0, arr_len - 1);
+            break;
+            case SORT_TABLE_QS:
+            printf("Сортировка таблицы без сортировки ключей за О(N*log(N)\n");
+            quick_sort_table(arr, 0, arr_len - 1);
+            break;
             case PRINT_KEYS:
             print_key_table(arr_keys, arr_len);
             break;

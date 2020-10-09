@@ -114,7 +114,6 @@ typedef struct
 typedef struct 
 {
     int min_price;
-    size_t table_ind;
     theatre_t *main_table;
 } theatre_key_t;
 
