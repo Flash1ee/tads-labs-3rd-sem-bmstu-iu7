@@ -75,7 +75,7 @@ void free_arr(my_num_t **arr, int rows) {
     }
 }
 int write_num(matrix_t *matrix, my_num_t value, int row, int col) {
-    if (matrix->matrix[col][row] != 0) {
+    if (matrix->matrix[row][col] != 0) {
         return -1;
     }
     matrix->matrix[row][col] = value;

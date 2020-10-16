@@ -63,7 +63,7 @@ int main(void) {
         return ALLOCATION_ERR;
     }
 
-    rc = initialize_sparse_matrix(sparse_matrix, rows, cols, count);
+    rc = initialize_sparse_matrix(sparse_matrix, rows, cols, count_unik);
     if (rc) {
         printf("Не удалось создать разреженную матрицу.\n");
         free_matrix(normalize_matrix);
