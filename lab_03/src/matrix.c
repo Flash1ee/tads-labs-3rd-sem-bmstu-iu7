@@ -1,6 +1,11 @@
 #include "matrix.h"
 #include "types.h"
 #include "retcodes.h"
+#include <time.h>
+#include <sys/time.h>
+#include <inttypes.h>
+#include <string.h>
+
 
 
 vector_t *create_vector() {
@@ -129,6 +134,9 @@ void normalize_to_sparse(matrix_t *normalize_matrix, sparse_matrix_t *sparse_mat
         }
         }
     }
+    for (int i = 0; i < sparse_matrix->count; i++) {
+        printf("%lf ", sparse_matrix->values[i]);
+    }
     sparse_matrix->cols_index[sparse_matrix->cols] = len;
 }
 void sparse_to_normalize(sparse_matrix_t *sparse_matrix, matrix_t *normalize_matrix) {
@@ -159,6 +167,15 @@ void multiply_sparse_on_vector(sparse_matrix_t *sparse_matrix, vector_t *vector,
         }
     }
 }
+void multiply_normalize_on_vector(matrix_t *matrix, vector_t *vector, vector_t *res) {
+    for (int i = 0; i < matrix->rows; i++) {
+        for (int j = 0; j < 1; j++) {
+            for (int k = 0; k < matrix->cols; k++) {
+                res->data[i] += matrix->matrix[i][k] * vector->data[k];
+            }
+        }
+    }
+}
 void print_matrix(matrix_t *matrix) {
     for (int i = 0; i < matrix->rows; i++) {
         for (int j = 0; j < matrix->cols; j++) {
@@ -172,4 +189,80 @@ void print_vector(vector_t *vector) {
         printf(PrMyNum" ", vector->data[i]);
     }
     printf("\n");
+}
+int fill_matrix(matrix_t *normalize_matrix, double percent_matrix) {
+    int count_not_null = percent_matrix * normalize_matrix->rows * normalize_matrix->cols;
+    int rand_row;
+    int rand_col;
+    int num;
+    srand(time(NULL));
+    while (count_not_null) {
+        while (TRUE) {
+            rand_row = rand() % normalize_matrix->rows;
+            rand_col = rand() % normalize_matrix->cols;
+            if (normalize_matrix->matrix[rand_row][rand_col] == 0) {
+                num = (rand() % MAX_VAL) - MAX_VAL / 2; 
+                write_num(normalize_matrix, num, rand_row, rand_col);
+                count_not_null--;
+                break;
+            }
+        }
+    }
+    return EXIT_SUCCESS;
+}
+int fill_vector(vector_t *vector, double percent_vector) {
+    int count_not_null = percent_vector * vector->len;
+    int rand_ind;
+    int num;
+    srand(time(NULL));
+    while (count_not_null) {
+        while (TRUE) {
+            rand_ind = rand() % vector->len;
+            if (vector->data[rand_ind] == 0) {
+                num = (rand() % MAX_VAL) - MAX_VAL / 2; 
+                vector->data[rand_ind] = num;
+                count_not_null--;
+                break;
+            }
+        }
+    }
+    return EXIT_SUCCESS;
+}
+void get_multiply_time(sparse_matrix_t *sparse_matrix, matrix_t *normalize_matrix, vector_t *vector, vector_t *res) {
+    printf("Исходная матрица - множимое\n");
+    print_matrix(normalize_matrix);
+    printf("Вектор-столбец - множитель\n");
+    print_vector(vector);
+
+    struct timeval tv_start, tv_stop;
+    int64_t time_n = 0, time_s = 0;
+
+    for (int i = 0; i < 1; i++) {
+        gettimeofday(&tv_start, NULL);
+        multiply_normalize_on_vector(normalize_matrix, vector, res);
+        gettimeofday(&tv_stop, NULL);
+        time_n += (tv_stop.tv_sec - tv_start.tv_sec) * 1000000LL + (tv_stop.tv_usec - tv_start.tv_usec);
+    }
+    printf("Результат умножения в количестве %d раз.\n", COUNT);
+    print_vector(res);
+    printf("\n\n");
+    for (int i = 0; i < res->len; i++) {
+        res->data[i] = 0;
+    }
+    for (int i = 0; i < 1; i++) {
+        gettimeofday(&tv_start, NULL);
+        multiply_sparse_on_vector(sparse_matrix, vector, res);
+        gettimeofday(&tv_stop, NULL);
+        time_s += (tv_stop.tv_sec - tv_start.tv_sec) * 1000000LL + (tv_stop.tv_usec - tv_start.tv_usec);
+    }
+    printf("Результат умножения в количестве %d раз.\n", COUNT);
+    print_vector(res);
+    printf("\n\n");
+    double res_n, res_s;
+    res_n = time_n / (double)COUNT;
+    res_s = time_s / (double)COUNT;
+    printf("Размерность матрицы %d x %d.\n", normalize_matrix->rows, normalize_matrix->cols);
+    printf("Умножение нормализованной матрицы на вектор выполнено за %lf.\n", res_n);
+    printf("Умножение разреженной матрицы на вектор выполнено за %lf.\n", res_s);
+
 }
