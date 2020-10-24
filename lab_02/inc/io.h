@@ -19,7 +19,10 @@ typedef enum
     SORT_TABLE_QS,
     PRINT_TABLE,
     PRINT_KEYS,
-    LIST_MUSIC_FOR_KIDS
+    LIST_MUSIC_FOR_KIDS,
+    SHUFFLE,
+    TIME_FAST,
+    TIME_SLOU
 } MODE;
 /**
 *@brief Разбор строки, считанной fgets
@@ -68,7 +71,7 @@ void print_pos(theatre_t src[], size_t pos);
 *@return int Код ошибки
  */
 int print_res(theatre_t src[], int8_t age, int8_t time_lim);
-
+int get_music_list(theatre_t src[], size_t len, int age, int time_lim);
 
 void print_key_table(theatre_key_t res[], size_t len);
 

@@ -5,7 +5,6 @@
 #define IND 5
 /**
 *@brief Длина числа
-*
  */
 #define NUM 16
 /**
@@ -87,7 +86,7 @@ typedef struct
 /**
 *@brief Структура для описания репертуара театра
 *@param title Название театра
-*@param show Название спектакля
+*@param show Нвание спектакля
 *@param producer ФИО режиссёра
 *@param min_price Минимальная цена билета
 *@param max_price Максимальная цена билета
@@ -114,7 +113,7 @@ typedef struct
 typedef struct 
 {
     int min_price;
-    theatre_t *main_table;
+    int id;
 } theatre_key_t;
 
 

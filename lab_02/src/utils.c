@@ -47,9 +47,8 @@ int add(theatre_t src[], size_t *len_src, size_t cnt, theatre_key_t arr_key[], s
     for (size_t i = 0; i < cnt; i++)
     {
         src[i + *len_src] = dst[i];
-        arr_key[i + *len_src].main_table = &src[i + *len_src];
+        arr_key[i + *len_src].id = src[i + *len_src].id;
         arr_key[i + *len_src].min_price = src[i + *len_src].min_price;
-
     }
     *len_src += cnt;
     return EXIT_SUCCESS;
@@ -62,7 +61,7 @@ int fill_arr_keys(theatre_t src[], theatre_key_t dst[], size_t len, size_t cnt)
     }
     for (size_t i = 0; i < cnt; i++)
     {
-        dst[i + len].main_table = &(src[i + len]);
+        dst[i + len].id = src[i + len].id;
         dst[i + len].min_price = src[i + len].min_price;
     }
     return EXIT_SUCCESS;
@@ -73,21 +72,21 @@ int entry(theatre_t *tmp, FILE *stream)
         return STRUCT_ERR;
     char buf[NUM + 2];
     memset(buf, 0, NUM + 2);
-    printf("Entry title: ");
+    printf("Entry title (max %d symbols): ", TITLE);
     if (!fgets(tmp->title, TITLE + 3, stream))
         return READ_ERR;
     if (strlen(tmp->title) - 1 > TITLE)
         return LIMIT_INPUT;
     (tmp->title)[strlen(tmp->title) - 1] = '\0';
 
-    printf("\nEntry name of show: ");
+    printf("\nEntry name of show (max %d symbols): ", SHOW);
     if (!fgets(tmp->show, SHOW + 3, stream))
         return READ_ERR;
     if (strlen(tmp->show) - 1 > SHOW)
         return LIMIT_INPUT;
     (tmp->show)[strlen(tmp->show) - 1] = '\0';
 
-    printf("\nEntry full producer name: ");
+    printf("\nEntry full producer name (max %d symbols): ", NAME);
     if (!fgets(tmp->producer, NAME + 3, stream))
         return READ_ERR;
     if (strlen(tmp->producer) - 1 > NAME)
@@ -142,7 +141,7 @@ int entry(theatre_t *tmp, FILE *stream)
         break;
     case MUSIC:
         printf("Your choice - music show\n");
-        printf("Entry composer name: ");
+        printf("Entry composer name (max %d symbols): ", NAME);
         if (!fgets(tmp->choice.sound.composer, NAME + 3, stream))
             return READ_ERR;
 
@@ -150,20 +149,20 @@ int entry(theatre_t *tmp, FILE *stream)
             return LIMIT_INPUT;
         (tmp->choice.sound.composer)[strlen(tmp->choice.sound.composer) - 1] = '\0';
 
-        printf("\nEntry composer country: ");
+        printf("\nEntry composer country (max %d symbols): ", COUNTRY);
         if (!fgets(tmp->choice.sound.country, COUNTRY + 3, stream))
             return READ_ERR;
         if (strlen(tmp->choice.sound.country) - 1 > COUNTRY)
             return LIMIT_INPUT;
         (tmp->choice.sound.country)[strlen(tmp->choice.sound.country) - 1] = '\0';
 
-        printf("\nEntry min age for listening: ");
-        if (!fgets(buf, NUM + 2, stream) || input_num((int *)&(tmp->choice.sound.min_age), buf))
+        printf("\nEntry min age for listening (max %d symbols): ", NUM);
+        if (!fgets(buf, NUM + 2, stream) || input_num((int *)&(tmp->choice.sound.min_age), buf) || tmp->choice.sound.min_age < 0)
             return READ_ERR;
         memset(buf, 0, NUM + 2);
 
         printf("\nEntry track duration: ");
-        if (!fgets(buf, NUM + 2, stream) || input_num((int *)&(tmp->choice.sound.time), buf))
+        if (!fgets(buf, NUM + 2, stream) || input_num((int *)&(tmp->choice.sound.time), buf) || tmp->choice.sound.time < 0)
             return READ_ERR;
         memset(buf, 0, NUM + 2);
 
@@ -207,33 +206,55 @@ int del(theatre_t src[], size_t *len, theatre_key_t dst[], size_t id)
     {
         return EMPTY_ARR;
     }
-    int pos = -1;
-    for (size_t i = 0; i < *len; i++)
-    {
-        if (src[i].id == id)
-        {
-            pos = i;
-            break;
-        }
-    }
-    if (pos == -1)
+    int pos_table = search_table(src, *len, id);
+    int pos_keys = search_keys(dst, *len, id);
+    if (pos_table == -1 || pos_keys == -1)
     {
         return ID_NOT_FOUND;
     }
-    if (pos == *len - 1)
+    for (size_t i = 0; i < *len; i++)
     {
-        memset(src + pos, 0, sizeof(theatre_t));
-        memset(dst + pos, 0, sizeof(theatre_key_t));
-        *len -= 1;
-        return EXIT_SUCCESS;
+        if (src[i].id == pos_table)
+        {
+            shift(src, sizeof(theatre_t), *len, pos_table);
+        }
     }
-    for (size_t i = pos; i < *len - 1; i++)
+    for (size_t i = 0; i < *len; i++)
     {
-        src[i] = src[i+1];
-        dst[i].main_table = dst[i+1].main_table;
-        dst[i].min_price = dst[i+1].min_price;
-    }
+        if (dst[i].id == pos_keys)
+        {
+            shift(dst, sizeof(theatre_key_t), *len, pos_keys);
+        }
+    }   
     *len -= 1;
+    return EXIT_SUCCESS;
+}
+
+int search_table(theatre_t src[], size_t len, int key)
+{
+    for (size_t i = 0; i < len; i++)
+    {
+        if (src[i].id == key)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+int search_keys(theatre_key_t src[], size_t len, int key)
+{
+    for (size_t i = 0; i < len; i++)
+    {
+        if (src[i].id == key)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+int shift(void *arr, size_t size, size_t len, size_t start)
+{
+    memmove((char*) arr + start * size,(char*) arr + (start + 1) * size, size * (len - start - 1));
     return EXIT_SUCCESS;
 }
 int bubble_sort(theatre_t *src, size_t len)
@@ -248,12 +269,12 @@ int bubble_sort(theatre_t *src, size_t len)
         {
             if (src[j].min_price > src[j + 1].min_price)
             {
-                swap_table(&src[j], &src[j+1]);
+                swap_table(&src[j], &src[j + 1]);
             }
         }
     }
     return EXIT_SUCCESS;
-}   
+}
 void swap_table(theatre_t frst[], theatre_t sec[])
 {
     theatre_t tmp = *frst;
@@ -277,14 +298,14 @@ int bubble_sort_keys(theatre_key_t *keys, size_t len)
     {
         for (size_t j = 0; j < len - i - 1; j++)
         {
-            if (keys[j].min_price> keys[j+1].min_price)
+            if (keys[j].min_price > keys[j + 1].min_price)
             {
-                swap_keys(&keys[j], &keys[j+1]);
+                swap_keys(&keys[j], &keys[j + 1]);
             }
         }
     }
     return EXIT_SUCCESS;
-} 
+}
 void quick_sort_table(theatre_t src[], size_t first, size_t last)
 {
     size_t i = first;
@@ -309,15 +330,15 @@ void quick_sort_table(theatre_t src[], size_t first, size_t last)
             i++;
             j--;
         }
-    } while (i <= j);   
-        if (i < last)
-        {
-            quick_sort_table(src, i, last);
-        }
-        if (first < j)
-        {
-            quick_sort_table(src, first, j);
-        }
+    } while (i <= j);
+    if (i < last)
+    {
+        quick_sort_table(src, i, last);
+    }
+    if (first < j)
+    {
+        quick_sort_table(src, first, j);
+    }
 }
 void quick_sort_keys(theatre_key_t src[], size_t first, size_t last)
 {
@@ -343,13 +364,30 @@ void quick_sort_keys(theatre_key_t src[], size_t first, size_t last)
             i++;
             j--;
         }
-    }   
-        if (i < last)
-        {
-            quick_sort_keys(src, i, last);
+    }
+    if (i < last)
+    {
+        quick_sort_keys(src, i, last);
+    }
+    if (first < j)
+    {
+        quick_sort_keys(src, first, j);
+    }
+}
+void shuffle(void *array, size_t n, size_t size) {
+    char tmp[size];
+    char *arr = array;
+    size_t stride = size * sizeof(char);
+
+    if (n > 1) {
+        size_t i;
+        for (i = 0; i < n - 1; ++i) {
+            size_t rnd = (size_t) rand();
+            size_t j = i + rnd / (RAND_MAX / (n - i) + 1);
+
+            memcpy(tmp, arr + j * stride, size);
+            memcpy(arr + j * stride, arr + i * stride, size);
+            memcpy(arr + i * stride, tmp, size);
         }
-        if (first < j)
-        {
-            quick_sort_keys(src, first, j);
-        }
-}    
+    }
+}

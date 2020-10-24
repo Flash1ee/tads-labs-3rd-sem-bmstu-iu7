@@ -1,0 +1,423 @@
+The Bolshoi Theatre
+Boris Godunov
+Igor Ushakov
+1000
+50000
+1
+1
+The Bolshoi Theatre
+Eugene Onegin
+Yevgeny Arye
+1250
+20000
+2
+Tugan Sokhiev
+Russia
+0
+200
+The Bolshoi Theatre
+La Damnation de Faust
+Hector Berlioz
+2500
+15000
+1
+2
+The Bolshoi Theatre
+Manon Lescaut
+Adolf Shapiro
+1000
+100000
+2
+Jader Bignamini
+Russia
+16
+180
+The Bolshoi Theatre
+Sadko
+Timur Zangiev
+500
+12500
+0
+6
+1
+The Bolshoi Theatre
+The Tsar s Bride
+Julia Pevzner
+1000
+5000
+0
+12
+1
+The Bolshoi Theatre
+The Idiot
+Evgeny Arye
+500
+20500
+1
+2
+The Bolshoi Theatre
+Rusalka
+Ainars Rubikis 
+1250
+9800
+0
+0
+0
+The Bolshoi Theatre
+Moscow, Cheryomushki
+Ivan Popovski
+900
+89000
+2
+Dm. Shostakovich
+Russia
+6
+220
+Mariinsky Theatre
+Swan Lake
+Gavriel Heine
+1250
+12000
+0
+6
+1
+Mariinsky Theatre
+The Queen of Spades
+Mikhail Sinkevich
+500
+4600
+0
+12
+1
+Mariinsky Theatre
+Pulcinella
+Renata Shakirova
+100
+6700
+1
+1
+Mariinsky Theatre
+Romeo and Juliet
+Vladislav Karklin
+1600
+10000
+2
+Sergei Prokofiev
+Russia
+6
+210
+Mariinsky Theatre
+Rusalka
+Alexander Maskalin
+1900
+11000
+0
+0
+0
+Mariinsky Theatre
+The young Mozart
+---
+400
+1800
+2
+W.A.Mozart
+Austria
+6
+60
+Mariinsky Theatre
+Don Giovanni
+Johannes Schaaf
+400
+3000
+1
+1
+Vakhtangov Theatre
+Widow from Valencia
+Mariya Meleshko
+600
+1500
+1
+1
+Vakhtangov Theatre
+CRAWFISH CRY
+Mikhail Tsitrinyak
+400
+2000
+2
+Boris Kiner
+Russia
+16
+90
+Vakhtangov Theatre
+Medea
+Mikhail Tsitrinyak
+600
+2300
+2
+Alex Prokopovich
+Russia
+16
+95
+Vakhtangov Theatre
+Peer Gynt
+Yuriy Butusov
+200
+3000
+1
+3
+The Bolshoi Theatre
+Boris Godunov
+Igor Ushakov
+1000
+50000
+1
+1
+The Bolshoi Theatre
+Eugene Onegin
+Yevgeny Arye
+1250
+20000
+2
+Tugan Sokhiev
+Russia
+0
+200
+The Bolshoi Theatre
+La Damnation de Faust
+Hector Berlioz
+2500
+15000
+1
+2
+The Bolshoi Theatre
+Manon Lescaut
+Adolf Shapiro
+1000
+100000
+2
+Jader Bignamini
+Russia
+16
+180
+The Bolshoi Theatre
+Sadko
+Timur Zangiev
+500
+12500
+0
+6
+1
+The Bolshoi Theatre
+The Tsar s Bride
+Julia Pevzner
+1000
+5000
+0
+12
+1
+The Bolshoi Theatre
+The Idiot
+Evgeny Arye
+500
+20500
+1
+2
+The Bolshoi Theatre
+Rusalka
+Ainars Rubikis 
+1250
+9800
+0
+0
+0
+The Bolshoi Theatre
+Moscow, Cheryomushki
+Ivan Popovski
+900
+89000
+2
+Dm. Shostakovich
+Russia
+6
+220
+Mariinsky Theatre
+Swan Lake
+Gavriel Heine
+1250
+12000
+0
+6
+1
+Mariinsky Theatre
+The Queen of Spades
+Mikhail Sinkevich
+500
+4600
+0
+12
+1
+Mariinsky Theatre
+Pulcinella
+Renata Shakirova
+100
+6700
+1
+1
+Mariinsky Theatre
+Romeo and Juliet
+Vladislav Karklin
+1600
+10000
+2
+Sergei Prokofiev
+Russia
+6
+210
+Mariinsky Theatre
+Rusalka
+Alexander Maskalin
+1900
+11000
+0
+0
+0
+Mariinsky Theatre
+The young Mozart
+---
+400
+1800
+2
+W.A.Mozart
+Austria
+6
+60
+Mariinsky Theatre
+Don Giovanni
+Johannes Schaaf
+400
+3000
+1
+1
+Vakhtangov Theatre
+Widow from Valencia
+Mariya Meleshko
+600
+1500
+1
+1
+Vakhtangov Theatre
+CRAWFISH CRY
+Mikhail Tsitrinyak
+400
+2000
+2
+Boris Kiner
+Russia
+16
+90
+Vakhtangov Theatre
+Medea
+Mikhail Tsitrinyak
+600
+2300
+2
+Alex Prokopovich
+Russia
+16
+95
+Vakhtangov Theatre
+Peer Gynt
+Yuriy Butusov
+200
+3000
+1
+3
+The Bolshoi Theatre
+Eugene Onegin
+Yevgeny Arye
+1250
+20000
+2
+Tugan Sokhiev
+Russia
+0
+200
+The Bolshoi Theatre
+La Damnation de Faust
+Hector Berlioz
+2500
+15000
+1
+2
+The Bolshoi Theatre
+Manon Lescaut
+Adolf Shapiro
+1000
+100000
+2
+Jader Bignamini
+Russia
+16
+180
+The Bolshoi Theatre
+Sadko
+Timur Zangiev
+500
+12500
+0
+6
+1
+The Bolshoi Theatre
+The Tsar s Bride
+Julia Pevzner
+1000
+5000
+0
+12
+1
+The Bolshoi Theatre
+Manon Lescaut
+Adolf Shapiro
+1000
+100000
+2
+Jader Bignamini
+Russia
+16
+180
+The Bolshoi Theatre
+Sadko
+Timur Zangiev
+500
+12500
+0
+6
+1
+The Bolshoi Theatre
+The Tsar s Bride
+Julia Pevzner
+1000
+5000
+0
+12
+1
+Vakhtangov Theatre
+CRAWFISH CRY
+Mikhail Tsitrinyak
+400
+2000
+2
+Boris Kiner
+Russia
+16
+90
+Vakhtangov Theatre
+Medea
+Mikhail Tsitrinyak
+600
+2300
+2
+Alex Prokopovich
+Russia
+16
+95

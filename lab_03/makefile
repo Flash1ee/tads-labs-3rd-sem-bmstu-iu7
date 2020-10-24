@@ -4,7 +4,7 @@ OBJPATH=./out/
 SRCPATH=./src/
 FUNCTESTSPATH:=./func_tests/
 UNITTESTSPATH:=./unit_tests/
-CFLAGS=-std=c99 --coverage -ggdb -I$(INCPATH) -Wall -Wpedantic -Wextra -g -c
+CFLAGS=-std=c99 --coverage -ggdb -I$(INCPATH) -Wall -Wpedantic -Wextra -g -O2 -c
 LFLAGS=--coverage
 UFLAGS=-lcheck
 DIR_CR=mkdir -p

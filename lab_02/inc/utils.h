@@ -73,6 +73,10 @@ int bubble_sort_keys(theatre_key_t *keys, size_t len);
 
 void quick_sort_keys(theatre_key_t src[], size_t first, size_t last);
 void quick_sort_table(theatre_t src[], size_t first, size_t last);
+int search_table(theatre_t src[], size_t len, int key);
+int search_keys(theatre_key_t src[], size_t len, int key);
+int shift(void *arr, size_t size, size_t len, size_t start);
+void shuffle(void *array, size_t n, size_t size);
 
 
 #endif // _UTILS_H_

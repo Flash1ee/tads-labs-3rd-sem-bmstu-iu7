@@ -1,0 +1,28 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "C/C++: gcc-9 build active file",
+            "command": "/usr/bin/gcc-9",
+            "args": [
+                "-g",
+                "-I",
+                "${workspaceFolder}/inc/",
+                "${workspaceFolder}/src/*.c",
+                "-o",
+                "app"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
