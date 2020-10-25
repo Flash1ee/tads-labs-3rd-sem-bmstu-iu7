@@ -16,6 +16,7 @@ const char *messages[] = {
 int main(void)
 {
     stack_arr_t *arr = NULL;
+    free_addr_t *arr_free_addr = NULL;
     int mode = 1;
     while (mode)
     {
@@ -36,7 +37,7 @@ int main(void)
         case EXIT:
             printf("%s", messages[EXIT_M]);
             mode = 0;
-            clean_stack_list();
+            clean_stack_list(arr_free_addr);
             if (arr)
             {
                 free_s_arr(arr);
@@ -47,19 +48,33 @@ int main(void)
             printf("Введите строку для добавление в стек-список\n");
             char *data = NULL;
             size_t len = 0;
+
             if (getline(&data, &len, stdin) == -1)
             {
                 printf("%s", messages[READ_ER]);
                 continue;
             }
             data[strlen(data) - 1] = '\0';
-            if (push(data))
+
+            if (!arr_free_addr)
+            {
+                arr_free_addr = creatre_free_addr_arr();
+                if (!arr_free_addr)
+                {
+                    printf("%s", messages[ALLOC_ER]);
+                    free(data);
+                    continue;
+                }
+            }
+            print_free_addr(arr_free_addr);
+            if (push(data, arr_free_addr))
             {
                 free(data);
                 printf("%s", messages[ALLOC_ER]);
                 continue;
             }
             printf("Строка добавлена в стек-список\n");
+            print_free_addr(arr_free_addr);
             break;
         }
         case ADD_A:
@@ -84,7 +99,7 @@ int main(void)
         }
         case DEL_L:
             printf("С вершины стека-списка будет удален элемент\n");
-            if (pop())
+            if (pop(arr_free_addr))
             {
                 printf("%s", messages[EMPTY_ER]);
             }
@@ -111,7 +126,7 @@ int main(void)
             }
             break;
         case PRINT_L:
-            printf("Будет выведены все элемента из стека-списка.\n");
+            printf("Будут выведены все элемента из стека-списка.\n");
             if (print_all())
             {
                 printf("%s", messages[EMPTY_ER]);
@@ -125,13 +140,13 @@ int main(void)
             }
             break;
         case CLEAN_L:
-            if (clean_stack_list())
+            if (clean_stack_list(arr_free_addr))
             {
                 printf("%s", messages[EMPTY_ER]);
             }
             else
             {
-                printf("Стек-лист очищен.\n");
+                printf("Стек-список очищен.\n");
             }
             break;
         case CLEAN_A:
@@ -143,6 +158,9 @@ int main(void)
             {
                 printf("Стек-массив очищен.\n");
             }
+            break;
+        case ADDR_L:
+            print_free_addr(arr_free_addr);
             break;
         }
     }

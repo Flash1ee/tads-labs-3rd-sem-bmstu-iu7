@@ -16,6 +16,7 @@ typedef enum {
     PRINT_A,
     CLEAN_L,
     CLEAN_A,
+    ADDR_L,
     COUNT
 } MODE;
 
