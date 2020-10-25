@@ -4,6 +4,7 @@ OBJPATH=./out/
 SRCPATH=./src/
 DOCSPATH=./docs/
 CFLAGS=-std=c99 --coverage -ggdb -I$(INCPATH) -Wall -Wpedantic -Wextra -g -O2 -c
+LFLAGS=--coverage
 DIR_CR=mkdir -p
 INC:=$(wildcard $(INCPATH)*.h)
 SRCS := $(wildcard $(SRCPATH)*.c)
@@ -20,13 +21,13 @@ release: CFLAGS=-std=c99 -I$(INCPATH) -o2 -c
 release: LFLAGS=-o2
 
 
-debug: $(OBJPATH)debug.lastbuildstate app.exe
-release: $(OBJPATH)release.lastbuildstate app.exe
+debug: $(OBJPATH)debug.lastbuildstate app
+release: $(OBJPATH)release.lastbuildstate app
 
 
 
 $(OBJPATH)debug.lastbuildstate: | out
-	rm -fv *.exe
+	rm -fv app
 	rm -fv $(OBJPATH)*.o
 	rm -fv $(OBJPATH)*.gcno
 	rm -fv $(OBJPATH)*.gcda
@@ -34,7 +35,7 @@ $(OBJPATH)debug.lastbuildstate: | out
 	touch $(OBJPATH)debug.lastbuildstate
 
 $(OBJPATH)release.lastbuildstate: | out
-	rm -fv *.exe
+	rm -fv app
 	rm -fv $(OBJPATH)*.o
 	rm -fv $(OBJPATH)*.gcno
 	rm -fv $(OBJPATH)*.gcda
