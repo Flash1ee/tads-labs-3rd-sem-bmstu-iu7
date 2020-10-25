@@ -17,7 +17,7 @@ int pop()
     }
     node_t *tmp = top;
     top = top->next;
-
+    printf("Удалена строка %s\n", tmp->data);
     free(tmp->data);
     free(tmp);
     return EXIT_SUCCESS;

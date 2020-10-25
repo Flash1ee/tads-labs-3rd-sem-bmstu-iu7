@@ -118,7 +118,7 @@ int main(void)
             }
             break;
         case PRINT_A:
-            printf("Будет выведены все элемента из стека-массива.\n");
+            printf("Будут выведены все элемента из стека-массива.\n");
             if (print_s_arr(arr))
             {
                 printf("%s", messages[EMPTY_ER]);
@@ -135,7 +135,7 @@ int main(void)
             }
             break;
         case CLEAN_A:
-            if (clean_s_arr(arr))
+            if (free_s_arr(arr))
             {
                 printf("%s", messages[EMPTY_ER]);
             }

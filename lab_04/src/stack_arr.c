@@ -18,15 +18,19 @@ stack_arr_t *create_s_arr()
     arr->top = 0;
     return arr;
 }
-void free_s_arr(stack_arr_t *arr)
+int free_s_arr(stack_arr_t *arr)
 {
-    clean_s_arr(arr);
+    if (clean_s_arr(arr))
+    {
+        return EMPTY;
+    }
     arr->capacity = 0;
     free(arr);
+    return EXIT_SUCCESS;
 }
 int clean_s_arr(stack_arr_t *arr)
 {
-    if (!arr)
+    if (!arr || !arr->top)
     {
         return EMPTY;
     }
@@ -52,16 +56,17 @@ int push_s_arr(stack_arr_t **arr, char *str)
     }
     if ((*arr)->top == (*arr)->capacity)
     {
-        char **tmp = realloc((*arr)->data, (INIT_SIZE / 2) * sizeof(char*));
+        char **tmp = NULL;
+        tmp = (char **)realloc((*arr)->data, ((*arr)->capacity * COEFFICIENT) * sizeof(char*));
         if (!tmp)
         {
             return ALLOCATION_ERR;
         }
         (*arr)->data = tmp;
-        (*arr)->capacity += INIT_SIZE / 2;
+        (*arr)->capacity *= COEFFICIENT;
     }
     int ind = (*arr)->top;
-    (*arr)->data[ind] = str;
+    (*arr)->data[ind] = strdup(str);
     (*arr)->top +=1;
 
     return EXIT_SUCCESS;
@@ -73,6 +78,7 @@ int pop_s_arr(stack_arr_t *arr)
         return EMPTY;
     }
     arr->top -= 1;
+    printf("Удалена строка %s\n", arr->data[arr->top]);
     free(arr->data[arr->top]);
     return EXIT_SUCCESS;
 }
