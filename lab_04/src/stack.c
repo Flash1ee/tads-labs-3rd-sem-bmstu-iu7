@@ -17,7 +17,7 @@ int pop(free_addr_t *list_addr)
     }
     node_t *tmp = top;
     top = top->next;
-    printf("Удалена строка %s\n", tmp->data);
+    // printf("Удалена строка %s\n", tmp->data);
     free(tmp->data);
     if (list_addr->len == list_addr->capacity)
     {

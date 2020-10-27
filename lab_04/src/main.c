@@ -5,19 +5,22 @@
 #include "stack.h"
 #include "stack_arr.h"
 
-
 const char *messages[] = {
-    "Спасибо за использование, до скорых встреч.\n",
-    "Неверный режим, повторите попытку...\n",
-    "Ошибка считывания строки, переводим в меню...\n",
-    "Ошибка выделения памяти, переводим в меню...\n",
-    "Стек пуст.\n"};
+    "Спасибо за использование, до скорых встреч.\n\n",
+    "Неверный режим, повторите попытку...\n\n",
+    "Ошибка считывания строки, переводим в меню...\n\n",
+    "Ошибка выделения памяти, переводим в меню...\n\n",
+    "Ошибка добавления случайных строк...\n\n",
+    "Стек пуст.\n\n",
+};
 
 int main(void)
 {
     stack_arr_t *arr = NULL;
     free_addr_t *arr_free_addr = NULL;
     int mode = 1;
+    top = NULL;
+    int rc = 0;
     while (mode)
     {
         menu();
@@ -40,7 +43,11 @@ int main(void)
             clean_stack_list(arr_free_addr);
             if (arr)
             {
-                free_s_arr(arr);
+                free_s_arr(&arr);
+            }
+            if (arr)
+            {
+                clean_s_arr(arr);
             }
             break;
         case ADD_L:
@@ -73,13 +80,13 @@ int main(void)
                 printf("%s", messages[ALLOC_ER]);
                 continue;
             }
-            printf("Строка добавлена в стек-список\n");
+            printf("Строка добавлена в стек-список\n\n");
             print_free_addr(arr_free_addr);
             break;
         }
         case ADD_A:
         {
-            printf("Введите строку для добавление в стек-массив\n");
+            printf("Введите строку для добавление в стек-массив\n\n");
             char *data = NULL;
             size_t len = 0;
             if (getline(&data, &len, stdin) == -1)
@@ -94,46 +101,46 @@ int main(void)
                 printf("%s", messages[ALLOC_ER]);
                 continue;
             }
-            printf("Строка добавлена в стек-массив\n");
+            printf("Строка добавлена в стек-массив\n\n");
             break;
         }
         case DEL_L:
-            printf("С вершины стека-списка будет удален элемент\n");
+            printf("С вершины стека-списка будет удален элемент\n\n");
             if (pop(arr_free_addr))
             {
                 printf("%s", messages[EMPTY_ER]);
             }
             break;
         case DEL_A:
-            printf("С вершины стека-массива будет удален элемент\n");
+            printf("С вершины стека-массива будет удален элемент\n\n");
             if (pop_s_arr(arr))
             {
                 printf("%s", messages[EMPTY_ER]);
             }
             break;
         case CHECK_TOP_L:
-            printf("На вершине стека-списка:\n");
+            printf("На вершине стека-списка:\n\n");
             if (peek())
             {
                 printf("%s", messages[EMPTY_ER]);
             }
             break;
         case CHECK_TOP_A:
-            printf("На вершине стека-массива:\n");
+            printf("На вершине стека-массива:\n\n");
             if (peek_s_arr(arr))
             {
                 printf("%s", messages[EMPTY_ER]);
             }
             break;
         case PRINT_L:
-            printf("Будут выведены все элемента из стека-списка.\n");
+            printf("Будут выведены все элемента из стека-списка.\n\n");
             if (print_all())
             {
                 printf("%s", messages[EMPTY_ER]);
             }
             break;
         case PRINT_A:
-            printf("Будут выведены все элемента из стека-массива.\n");
+            printf("Будут выведены все элемента из стека-массива.\n\n");
             if (print_s_arr(arr))
             {
                 printf("%s", messages[EMPTY_ER]);
@@ -146,21 +153,59 @@ int main(void)
             }
             else
             {
-                printf("Стек-список очищен.\n");
+                printf("Стек-список очищен.\n\n");
             }
             break;
         case CLEAN_A:
-            if (free_s_arr(arr))
+            if (free_s_arr(&arr))
             {
                 printf("%s", messages[EMPTY_ER]);
             }
             else
             {
-                printf("Стек-массив очищен.\n");
+                printf("Стек-массив очищен.\n\n");
             }
             break;
         case ADDR_L:
             print_free_addr(arr_free_addr);
+            break;
+        case RAND_L:
+            rc = rand_push(&arr, &arr_free_addr, LIST);
+            if (rc)
+            {
+                printf("%s", messages[rc]);
+            }
+            break;
+        case RAND_A:
+            rc = rand_push(&arr, &arr_free_addr, ARRAY);
+            if (rc)
+            {
+                printf("%s", messages[rc]);
+            }
+            break;
+        case DEL_N_L:
+            rc = multi_pop(arr, arr_free_addr, LIST);
+            if (rc)
+            {
+                if (rc == ARG_ERR)
+                {
+                    printf("Сначала нужно добавить элементы.\n\n");
+                    break;
+                }
+                printf("%s", messages[rc]);
+            }
+            break;
+        case DEL_N_A:
+            rc = multi_pop(arr, arr_free_addr, ARRAY);
+            if (rc)
+            {
+                if (rc == ARG_ERR)
+                {
+                    printf("Сначала нужно добавить элементы.\n\n");
+                    break;
+                }
+                printf("%s", messages[rc]);
+            }
             break;
         }
     }

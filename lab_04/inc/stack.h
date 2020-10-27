@@ -20,8 +20,6 @@ typedef struct
     size_t len;
 } free_addr_t;
 
-
-
 node_t *top;
 
 free_addr_t *creatre_free_addr_arr();

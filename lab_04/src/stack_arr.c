@@ -18,14 +18,15 @@ stack_arr_t *create_s_arr()
     arr->top = 0;
     return arr;
 }
-int free_s_arr(stack_arr_t *arr)
+int free_s_arr(stack_arr_t **arr)
 {
-    if (clean_s_arr(arr))
+    if (clean_s_arr(*arr))
     {
         return EMPTY;
     }
-    arr->capacity = 0;
-    free(arr);
+    (*arr)->capacity = 0;
+    free(*arr);
+    *arr = NULL;
     return EXIT_SUCCESS;
 }
 int clean_s_arr(stack_arr_t *arr)
@@ -78,7 +79,7 @@ int pop_s_arr(stack_arr_t *arr)
         return EMPTY;
     }
     arr->top -= 1;
-    printf("Удалена строка %s\n", arr->data[arr->top]);
+    // printf("Удалена строка %s\n", arr->data[arr->top]);
     free(arr->data[arr->top]);
     return EXIT_SUCCESS;
 }

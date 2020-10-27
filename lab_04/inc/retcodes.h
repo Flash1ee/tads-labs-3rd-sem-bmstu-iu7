@@ -7,6 +7,7 @@
 
 #define EMPTY 1
 #define ALLOCATION_ERR 2
+#define ARG_ERR 3
 
 
 
