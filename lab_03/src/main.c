@@ -64,7 +64,7 @@ int main()
                 rc = (scanf("%d", &r));
                 printf("Введите номер столбца (индексация с 1): ");
                 rc += (scanf("%d", &c));
-                if (rc != 2 || r <= 0 || c <= 0 || r  > rows || c  > cols)
+                if (rc != 2 || r <= 0 || c <= 0 || r > rows || c > cols)
                 {
                     printf("Введена несуществующая(ий) строка / столбец.\n");
                     free_matrix(normalize_matrix);
@@ -83,7 +83,7 @@ int main()
                 {
                     count_unik -= 1;
                 }
-            print_matrix(normalize_matrix);
+                print_matrix(normalize_matrix);
             }
             // Ввёл обычную матрицу
             sparse_matrix_t *sparse_matrix = create_sparse_matrix();
@@ -123,27 +123,79 @@ int main()
             }
             printf("По заданной матрице будет сформирован вектор из %d элементов\n", cols);
             count_unik = 0;
-            printf("Введите элементы вектора\n");
-            for (int i = 0; i < cols; i++)
+            count = 0;
+            printf("Введите кол - во ненулеввых элементов вектора\n");
+            printf("Допустимые значения: [0 : %d]\n", cols);
+            if (scanf("%d", &count) != 1)
             {
-                my_num_t tmp;
-                if (scanf(ScMyNum, &tmp) != 1)
+                printf("Некорректное значение.\n");
+                free_matrix(normalize_matrix);
+                free_sparse_matrix(sparse_matrix);
+                free_matrix(vector);
+                break;
+            }
+            if (count < 0 || count > cols)
+            {
+                printf("Кол-во элементов не входит в диапазон [0 : %d].\n", cols);
+                free_matrix(normalize_matrix);
+                free_sparse_matrix(sparse_matrix);
+                free_matrix(vector);
+                break;
+            }
+            count_unik = count;
+            for (int i = 0; i < count; i++)
+            {
+                int r;
+                printf("Введите номер строки (индексация с 1): ");
+                rc = (scanf("%d", &r));
+                if (rc != 1 || r <= 0 || r > rows)
+                {
+                    printf("Введена несуществующая строка.\n");
+                    free_matrix(normalize_matrix);
+                    free_sparse_matrix(sparse_matrix);
+                    free_matrix(vector);
+                    return READ_ERR;
+                }
+                printf("Введите значение: ");
+                my_num_t value;
+                rc = (scanf(ScMyNum, &value));
+                if (rc != 1)
                 {
                     printf("Неверный ввод числа.\n");
                     free_matrix(normalize_matrix);
                     free_sparse_matrix(sparse_matrix);
                     free_matrix(vector);
-                    return ALLOCATION_ERR;
+                    return READ_ERR;
                 }
-                vector->matrix[i][0] = tmp;
-                if (tmp != 0) {
-                    count_unik++;
+                if (write_num(vector, value, r - 1, 0) == -1)
+                {
+                    count_unik -= 1;
                 }
+                print_matrix(vector);
             }
+            // for (int i = 0; i < cols; i++)
+            // {
+            //     my_num_t tmp;
+            //     if (scanf(ScMyNum, &tmp) != 1)
+            //     {
+            //         printf("Неверный ввод числа.\n");
+            //         free_matrix(normalize_matrix);
+            //         free_sparse_matrix(sparse_matrix);
+            //         free_matrix(vector);
+            //         return ALLOCATION_ERR;
+            //     }
+            //     vector->matrix[i][0] = tmp;
+            //     if (tmp != 0)
+            //     {
+            //         count_unik++;
+            //     }
+            // }
             printf("Вектор заполнен.\n");
-            if (!count_unik) {
+            if (!count_unik)
+            {
                 printf("Результат умножения.\n");
-                for (int i = 0; i < rows; i++) {
+                for (int i = 0; i < rows; i++)
+                {
                     printf("%lf ", (my_num_t)ZERO);
                 }
                 printf("\n");
@@ -161,7 +213,8 @@ int main()
                 free_matrix(vector);
                 return ALLOCATION_ERR;
             }
-            if (initialize_sparse_matrix(sparse_vector, rows, 1, count_unik)) {
+            if (initialize_sparse_matrix(sparse_vector, rows, 1, count_unik))
+            {
                 free_matrix(normalize_matrix);
                 free_sparse_matrix(sparse_matrix);
                 free_matrix(vector);
@@ -219,19 +272,23 @@ int main()
         case INPUT_FILE:
         {
             int c;
-            while ((c = getchar()) != '\n') {}
+            while ((c = getchar()) != '\n')
+            {
+            }
             printf("Формат файла:\nПервая строка - размер матрицы в виде двух чисел (кол-во строк кол-во столбцов).\n");
             printf("Далее сама матрица, затем кол-во элементов вектор-столбца в одной строке.\n");
             printf("Начиная со следующей строки - элементы вектор-столбца.\n");
             printf("Введите название файла.(Не более 32 символов)\n");
             char filename[32 + 3] = {'\0'};
-            if (!fgets(filename, 32 + 3, stdin) || strlen(filename) > 32 + 1) {
+            if (!fgets(filename, 32 + 3, stdin) || strlen(filename) > 32 + 1)
+            {
                 printf("Введено много символов. Ошибка.\n");
                 break;
             }
             filename[strlen(filename) - 1] = '\0';
             FILE *file = fopen(filename, "r");
-            if (!file) {
+            if (!file)
+            {
                 printf("Не удалось открыть файл.\n");
                 break;
             }
@@ -242,14 +299,15 @@ int main()
 
             sparse_matrix_t *sparse_res = NULL;
 
-
             int rc = get_matrix_from_file(file, &normalize_matrix, &normalize_vector, &sparse_matrix, &sparse_vector);
-            if (rc) {
+            if (rc)
+            {
                 fclose(file);
                 break;
             }
             sparse_res = create_sparse_matrix();
-            if (!sparse_res) {
+            if (!sparse_res)
+            {
                 printf("Не удалось создать результирующий вектор.\n");
                 free_matrix(normalize_matrix);
                 free_matrix(normalize_vector);
@@ -276,7 +334,7 @@ int main()
         case TEST:
         {
             int rows, cols;
-            printf("Введите количество строк и столбцов матрицы");
+            printf("Введите количество строк и столбцов матрицы: ");
             if (scanf("%d %d", &rows, &cols) != 2 || rows < 0 || cols < 0)
             {
                 printf("Некорректный ввод\n");
@@ -311,12 +369,14 @@ int main()
                 return ALLOCATION_ERR;
             }
             matrix_t *normalize_vector = create_normalize_matrix();
-            if (!normalize_vector) {
+            if (!normalize_vector)
+            {
                 printf("Не удалось создать нормализованный вектор\n");
                 free_matrix(normalize_matrix);
                 return ALLOCATION_ERR;
             }
-            if (initialize_normalize_matrix(normalize_vector, cols, 1)) {
+            if (initialize_normalize_matrix(normalize_vector, cols, 1))
+            {
                 printf("Не удалось инициализировать нормализованный вектор\n");
                 free_matrix(normalize_matrix);
                 free(normalize_vector);
@@ -327,7 +387,6 @@ int main()
 
             // print_matrix(normalize_matrix);
             // print_matrix(normalize_vector);
-
 
             sparse_matrix_t *sparse_matrix = create_sparse_matrix();
             if (!sparse_matrix)
@@ -357,7 +416,8 @@ int main()
                 return ALLOCATION_ERR;
             }
             int not_null_vector = rarefaction_vector * cols;
-            if (initialize_sparse_matrix(sparse_vector, cols, 1, not_null_vector)) {
+            if (initialize_sparse_matrix(sparse_vector, cols, 1, not_null_vector))
+            {
                 printf("Не удалось инициализировать разреженный вектор.\n");
                 free_matrix(normalize_matrix);
                 free_sparse_matrix(sparse_matrix);
@@ -378,7 +438,8 @@ int main()
                 return ALLOCATION_ERR;
             }
             matrix_t *normalize_res = create_normalize_matrix();
-            if (!normalize_res) {
+            if (!normalize_res)
+            {
                 printf("Не удалось создать вектор\n");
                 free_matrix(normalize_matrix);
                 free_sparse_matrix(sparse_matrix);
@@ -411,7 +472,7 @@ int main()
             // printf("\n");
             // print_sparse(sparse_vector);
             // printf("\n");
-            get_multiply_time(normalize_matrix, normalize_vector, normalize_res,sparse_matrix, sparse_vector, sparse_res);
+            get_multiply_time(normalize_matrix, normalize_vector, normalize_res, sparse_matrix, sparse_vector, sparse_res);
             // printf("RESULT:\n");
             // print_matrix(normalize_res);
             // print_sparse(sparse_res);
