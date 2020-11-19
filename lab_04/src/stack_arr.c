@@ -1,3 +1,10 @@
+#define _GNU_SOURCE
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "retcodes.h"
+#include "utils.h"
 #include "stack_arr.h"
 
 stack_arr_t *create_s_arr()
@@ -7,15 +14,17 @@ stack_arr_t *create_s_arr()
     {
         return NULL;
     }
-    char **arr_data = calloc(INIT_SIZE, sizeof(char*));
+    char **arr_data = calloc(STACK_LIM, sizeof(char*));
     if (!arr_data)
     {
         free(arr);
         return NULL;
     }
     arr->data = arr_data;
-    arr->capacity = INIT_SIZE;
+    arr->capacity = STACK_LIM;
     arr->top = 0;
+    // arr->tail = 0;
+
     return arr;
 }
 int free_s_arr(stack_arr_t **arr)
@@ -25,17 +34,19 @@ int free_s_arr(stack_arr_t **arr)
         return EMPTY;
     }
     (*arr)->capacity = 0;
+    // (*arr)->tail = 0;
+    (*arr)->top = 0;
     free(*arr);
     *arr = NULL;
     return EXIT_SUCCESS;
 }
 int clean_s_arr(stack_arr_t *arr)
 {
-    if (!arr || !arr->top)
+    if (!arr || !arr->tail)
     {
         return EMPTY;
     }
-    for (int i = arr->top - 1; i >= 0; i--)
+    for (int i = 0; i >arr->top; i--)
     {
         free(arr->data[i]);
     }
@@ -51,9 +62,9 @@ int push_s_arr(stack_arr_t **arr, char *str)
         {
             return ALLOCATION_ERR;
         }
-        printf("CREATE\n");
-        printf("top = %d\n", (*arr)->top);
-
+    }
+    if ((*arr)->top == (*arr)->capacity) {
+        return FULL_ER;
     }
     if ((*arr)->top == (*arr)->capacity)
     {
@@ -65,10 +76,10 @@ int push_s_arr(stack_arr_t **arr, char *str)
         }
         (*arr)->data = tmp;
         (*arr)->capacity *= COEFFICIENT;
+        
     }
-    int ind = (*arr)->top;
-    (*arr)->data[ind] = strdup(str);
-    (*arr)->top +=1;
+    (*arr)->data[(*arr)->top] = str;
+    (*arr)->top++;
 
     return EXIT_SUCCESS;
 }

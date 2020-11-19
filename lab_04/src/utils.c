@@ -1,3 +1,11 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
+#include <inttypes.h>
+
+#include "retcodes.h"
 #include "utils.h"
 void menu()
 {
@@ -92,6 +100,10 @@ int rand_push(stack_arr_t **arr, free_addr_t **addresses, int flag)
         }
         if (flag == LIST)
         {
+            if (node_cnt + count > STACK_LIM)
+            {
+                return FULL_ER;
+            }
             gettimeofday(&tv_start, NULL);
             rc = push(tmp, *addresses);
             gettimeofday(&tv_stop, NULL);
@@ -111,7 +123,7 @@ int rand_push(stack_arr_t **arr, free_addr_t **addresses, int flag)
             if (rc)
             {
                 free(tmp);
-                return ALLOCATION_ERR;
+                return rc;
             }
             time_add += (tv_stop.tv_sec - tv_start.tv_sec) * 1000000LL + (tv_stop.tv_usec - tv_start.tv_usec);
         }
@@ -138,24 +150,21 @@ int multi_pop(stack_arr_t *arr, free_addr_t *arr_free_addr, int flag)
     }
     if (flag == ARRAY)
     {
-        if (!arr)
+        if (!arr || !arr->top)
         {
-            return ARG_ERR;
+            return EMPTY_ER;
         }
-        if (!arr->top)
-        {
-            return EMPTY;
-        }
+        
     }
     if (flag == LIST)
     {
         if (!arr_free_addr)
         {
-            return ARG_ERR;
+            return EMPTY_ER;
         }
         if (!top)
         {
-            return EMPTY;
+            return EMPTY_ER;
         }
     }
     int count = 0;
@@ -208,6 +217,6 @@ int multi_pop(stack_arr_t *arr, free_addr_t *arr_free_addr, int flag)
     {
         printf("Количество строк в списке меньше, чем вы хотите удалить. Удалены все строки списка...\n");
     }
-    printf("Время затраченное на удаление %d в %s строк = %ld", i, place[flag], res);
+    printf("Время затраченное на удаление %d в %s строк = %ld\n", i, place[flag], res);
     return EXIT_SUCCESS;
 }

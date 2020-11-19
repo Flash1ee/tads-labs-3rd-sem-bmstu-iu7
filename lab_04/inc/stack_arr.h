@@ -1,18 +1,12 @@
 #ifndef _STACK_ARR_H_
 #define _STACK_ARR_H_
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "retcodes.h"
 
 
-
-typedef struct 
+typedef struct
 {
     char **data;
     int top;
+    int tail;
     int capacity;
 } stack_arr_t;
 

@@ -1,19 +1,14 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-
-#include "stack.h"
-#include "stack_arr.h"
-#include "retcodes.h"
-#include "time.h"
-#include <sys/time.h>
-
-
 #define LIST 0
 #define ARRAY 1
 #define ASCII_START 97
 #define ASCII_END 122
 #define MAX_STR 128
+
+#include "stack.h"
+#include "stack_arr.h"
 typedef enum {
     EXIT,
     ADD_L,
@@ -41,6 +36,8 @@ typedef enum {
     ALLOC_ER,
     RAND_ER,
     EMPTY_ER,
+    FULL_ER,
+    ARG_ER
 } ERROR;
 
 int valid_mode(int mode);

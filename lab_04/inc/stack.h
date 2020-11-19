@@ -1,11 +1,5 @@
 #ifndef _STACK_H_
 #define _STACK_H_
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "retcodes.h"
 
 typedef struct node_s
 {
@@ -21,6 +15,7 @@ typedef struct
 } free_addr_t;
 
 node_t *top;
+size_t node_cnt;
 
 free_addr_t *creatre_free_addr_arr();
 node_t *create_node(char *data);
