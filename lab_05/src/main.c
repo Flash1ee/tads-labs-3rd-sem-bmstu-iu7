@@ -13,8 +13,6 @@
 
 
 int main(void) {
-    setbuf(stdout, NULL);
-
     array_element_t arr_queue_fst[N], arr_queue_snd[N];
     queue_list_t list_queue_fst, list_queue_snd;
     queue_arr_t ring_arr_queue_fst, ring_arr_queue_snd;
