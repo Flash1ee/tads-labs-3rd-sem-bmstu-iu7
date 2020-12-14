@@ -14,7 +14,9 @@
 #define TREE 1
 #define HASH_TABLE 2
 #define FILE_ADD 3
+#define TIME_TEST 4
 
+#define file_storage "./data/"
 int main() {
     tree_node_t *bst_tree = NULL;
     avl_node_t *avl_tree = NULL;
@@ -22,8 +24,8 @@ int main() {
     hash_table *ht = NULL;
     int cmp_k = 0;
 
-    char f_name[50] = { 0};
-    char f_hash[50] = { 0};
+    char f_name[50] = { 0 };
+    char f_hash[50] = { 0 };
 
     while (1) {
         welcome();
@@ -55,8 +57,18 @@ int main() {
                         clean_buf();
                         break;
                     }
-                    printf("Число будет добавлено в файл %s\n", f_name);
-                    FILE *out = fopen(f_name, "a");
+                    clean_buf();
+                    char file[16];
+                    puts("Введите имя файла из папки data");
+                    if (!fgets(file, 16, stdin) || strlen(file) < 2) {
+                        puts("Неверный ввод, переводим в меню");
+                    }
+                    file[strlen(file) - 1] = '\0';
+                    char full_name[32] = {0};
+                    strcpy(full_name, file_storage);
+                    strcat(full_name, file);
+                    printf("Число будет добавлено в файл %s\n", full_name);
+                    FILE *out = fopen(full_name, "a");
                     if (!out) {
                         puts("Ошибка открытия файла");
                         break;
@@ -66,8 +78,10 @@ int main() {
                     puts("Число успешно добавлено в файл");
                     break;
                 }
-
-                
+                case TIME_TEST:
+                    puts("Режим замеры времени добавления в ДДП/АВЛ/Хеш-таблицу/файл");
+                    timeOperations();
+                    break;
             }
         }
     }

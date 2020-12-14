@@ -3,9 +3,11 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "avl_tree.h"
+#include "hash.h"
+#include "my_menu.h"
 #include "retcodes.h"
 #include "view.h"
-#include "my_menu.h"
 
 #define graph_data "./data/tree"
 #define output_bst_beg "./data/graph_bst_beg.gv"
@@ -53,7 +55,6 @@ void treeInterface() {
     puts("Чтобы выйти в главное меню введите 0");
     puts("");
     puts("");
-
 }
 
 int getUserTreeOperation() {
@@ -84,8 +85,140 @@ avl_node_t *preTreeLook(tree_node_t *tree, void *(*act)(avl_node_t *avl, int val
 avl_node_t *bstToAvl(tree_node_t *bst, avl_node_t *avl) {
     return preTreeLook(bst, avlInsert, avl);
 }
+uint64_t tick(void) {
+    uint32_t high, low;
+    __asm__ __volatile__(
+        "rdtsc\n"
+        "movl %%edx, %0\n"
+        "movl %%eax, %1\n"
+        : "=r"(high), "=r"(low)::"%rax", "%rbx", "%rcx", "%rdx");
 
+    uint64_t ticks = ((uint64_t)high << 32) | low;
 
+    return ticks;
+}
+
+void timeOperations() {
+    char buf[32] = "./data/tree";
+    // puts("Введите номер файла");
+    // char num[3];
+    // if (!fgets(num, 4, stdin) || num[strlen(num) - 1] != '\n') {
+    //     puts("Неверный ввод номера файла");
+    //     clean_buf();
+    //     return;
+    // }
+    // num[strlen(num) - 1] = '\0';
+    // strcat(buf, num);
+    // strcat(buf, ".txt");
+    int choice = 0;
+    puts("Выберите количество добавляемых чисел");
+    puts("10 - 1");
+    puts("50 - 2");
+    puts("100 - 3");
+    puts("250 - 4");
+
+    if (scanf("%d", &choice) != 1 || (choice != 1 && choice != 2 && choice != 3 && choice != 4)) {
+        puts("Неверный ввод");
+        clean_buf();
+        return;
+    }
+    clean_buf();
+    char f_num[5] = {0};
+    snprintf(f_num, 3, "%d", choice);
+    strcat(buf, f_num);
+    strcat(buf, ".txt");
+    int cnt = 10;
+    if (choice == 2) {
+        cnt = 50;
+    } else if (choice == 3) {
+        cnt = 100;
+    } else if (choice == 4) {
+        cnt = 250;
+    }
+    int arr[cnt];
+    int i = 0;
+    FILE *in = fopen(buf, "r");
+    while (fscanf(in, "%d", &arr[i]) == 1) {
+        i++;
+    }
+    fclose(in);
+
+    tree_node_t *bst = NULL;
+    avl_node_t *avl = NULL;
+    hash_table *hash = NULL;
+
+    uint64_t t_btree = 0;
+    uint64_t t_avl = 0;
+    uint64_t t_hash = 0;
+    uint64_t t_file = 0;
+
+    for (int i = 0; i < 10; i++) {
+        uint64_t t_btree_tmp = tick();
+        for (int i = 0; i < cnt; i++) {
+            tree_node_t *node = createNode(arr[i]);
+            bst = bTreeInsert(bst, node);
+        }
+        // bst = readTreeFromFile(buf);
+        t_btree_tmp = tick() - t_btree_tmp;
+        t_btree += t_btree_tmp;
+        freeTree(bst);
+        bst = NULL;
+    }
+    t_btree /= 10;
+
+    for (int i = 0; i < 10; i++) {
+        uint64_t t_avl_tmp = tick();
+        for (int i = 0; i < cnt; i++) {
+            avl = avlInsert(avl, arr[i]);
+        }
+        // avl = readAvlFromFile(buf);
+        t_avl_tmp = tick() - t_avl_tmp;
+        freeAvl(avl);
+        avl = NULL;
+        t_avl += t_avl_tmp;
+    }
+    t_avl /= 10;
+    for (int i = 0; i < 10; i++) {
+        hash = htHashTableCreate(cnt * 2);
+        int cmp_k = cnt;
+        uint64_t t_hash_tmp = tick();
+        for (int i = 0; i < cnt; i++) {
+            htInsert(hash, arr[i], cmp_k);
+        }
+        // readHashFromFile(&hash, buf, 100);
+        t_hash_tmp = tick() - t_hash_tmp;
+        t_hash += t_hash_tmp;
+        htHashTableDestroy(hash);
+        hash = NULL;
+    }
+    t_hash /= 10;
+    for (int i = 0; i < 10; i++) {
+        FILE *out = fopen("./out/test_write.txt", "w");
+        uint64_t t_file_tmp = tick();
+        for (int i = 0; i < cnt; i++) {
+            fprintf(out, "%ld ", tick() % 1000);
+        }
+        t_file_tmp = tick() - t_file_tmp;
+        fclose(out);
+        t_file += t_file_tmp;
+    }
+    t_file /= 10;
+
+    size_t mem_bst = (sizeof(tree_node_t) * cnt);
+    size_t mem_avl = (sizeof(avl_node_t) * cnt);
+    size_t mem_hash = (sizeof(hash_table) + (sizeof(int) * cnt));
+    printf("Результаты замеров записи %d чисел, память - оперативная.\n", cnt);
+    printf("┃ БДД   ┃ АВЛ   ┃ ХЕШ   ┃ ФАЙЛ  ┃\n");
+    printf("┃━━━━━━━┃━━━━━━━┃━━━━━━━┃━━━━━━━┃\n");
+    printf("┃%7ld┃%7ld┃%7ld┃%7ld┃ время\n", t_btree, t_avl, t_hash, t_file);
+    printf("┃%7ld┃%7ld┃%7ld┃%7d┃ память\n", mem_bst, mem_avl, mem_hash, 0);
+
+    printf("Время записи в ДДП %ld, занимаемая память %zu\n", t_btree, mem_bst);
+    printf("Время записи в АВЛ %ld чисел, занимаемая память %zu\n", t_avl, mem_avl);
+    printf("Время записи в Хеш таблицу %ld чисел, занимаемая память %zu\n", t_hash, mem_hash);
+    printf("Время записи в файл %ld чисел, занимаемая память %d\n", t_file, 0);
+    return;
+}
 void treeOperations(tree_node_t **bTree, avl_node_t **avlTree, char *f_name) {
     char buf[BUF + 1];
     strcpy(f_name, graph_data);

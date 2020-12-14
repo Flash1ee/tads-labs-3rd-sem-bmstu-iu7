@@ -9,6 +9,8 @@ void welcome() {
     puts("Для работы с деревьями, введите 1");
     puts("Для работы с хеш-таблицей введите 2");
     puts("Чтобы добавить число в файл, введите 3");
+    puts("Чтобы замерить время добавления в АТД, введите 4");
+
 }
 
 
@@ -19,7 +21,7 @@ int getUserInput() {
         return -1;
     }
     choice = atoi(buf);
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 5; ++i) {
         if (i == choice) {
             return choice;
         }

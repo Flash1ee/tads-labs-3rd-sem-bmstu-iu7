@@ -1,17 +1,22 @@
+#include "hash_oper.h"
+
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
-#include "my_menu.h"
-#include "hash_oper.h"
 #include "hash.h"
+#include "my_menu.h"
 
 void hashInterface() {
     puts("Чтобы заполнить хеш-таблицу числами из файла, введите 1");
     puts("Чтобы добавить число в таблицу, введите 2");
     puts("Чтобы удалить число из таблицы введите 3");
     puts("Чтобы вывести таблицу, введите 4");
+    puts("Чтобы посмотреть индекс заполненности таблицы, введите 5");
+    puts("Чтобы сменить хеш-функцию, введите 6");
+    puts("Чтобы сменить кол-во сравнений, введите 7");
+
     puts("");
     puts("Чтобы выйти в главное меню введите 0");
     puts("");
@@ -24,6 +29,8 @@ static enum {
     DEL_HASH,
     PRINT_HASH,
     PERCENT_FILL,
+    RESTRUCT,
+    CHANGE_CMP,
     COUNT
 } hashOperation;
 
@@ -42,7 +49,7 @@ static enum {
     HASH_READ_ERR,
     ELEM_FOUND,
     MAX_CMP,
-    EMPTY_TABLE
+    EMPTY_TABLE,
 } types_err;
 
 static int getUserHashOperation() {
@@ -68,6 +75,7 @@ static int getUserHashOperation() {
 void hashOperations(hash_table **ht, char *f_name, int *cmp_k) {
     strcpy(f_name, graph_data);
     char f_name_cur[20];
+    int hash_func_key = 0;
 
     while (1) {
         hashInterface();
@@ -126,6 +134,7 @@ void hashOperations(hash_table **ht, char *f_name, int *cmp_k) {
                     }
                     if (!*ht) {
                         *ht = htHashTableCreate(INIT_SIZE);
+                        // *ht = htHashTableCreate(2);
                     }
                     if (*cmp_k == 0) {
                         puts("Введите количество макс. кол-во сравнений при возникновении коллизий");
@@ -135,18 +144,36 @@ void hashOperations(hash_table **ht, char *f_name, int *cmp_k) {
                             break;
                         }
                     }
-                    if (htSearch(*ht, x) != NULL) {
-                        puts(errors[ELEM_FOUND]);
-                        clean_buf();
-                        break;
-                    }
-                    int rc = htInsert(*ht, x, *cmp_k);
-                    if (rc) {
-                        puts(errors[MAX_CMP]);
-                        clean_buf();
-                        break;
+                    switch (hash_func_key) {
+                        case 0: {
+                            if (htSearch(*ht, x) != NULL) {
+                                puts(errors[ELEM_FOUND]);
+                                break;
+                            }
+                            int rc = htInsert(*ht, x, *cmp_k);
+                            if (rc) {
+                                puts(errors[MAX_CMP]);
+                                clean_buf();
+                                break;
+                            }
+                            break;
+                        }
+                        case 1: {
+                            if (htSearchHashStr(*ht, x) != NULL) {
+                                puts(errors[ELEM_FOUND]);
+                                break;
+                            }
+                            int rc = htInsertHashStr(*ht, x, *cmp_k);
+                            if (rc) {
+                                puts(errors[MAX_CMP]);
+                                clean_buf();
+                                break;
+                            }
+                            break;
+                        }
                     }
                     puts("Число добавлено в таблицу");
+                    clean_buf();
                     break;
                 }
                 case DEL_HASH: {
@@ -161,12 +188,24 @@ void hashOperations(hash_table **ht, char *f_name, int *cmp_k) {
                         clean_buf();
                         break;
                     }
-                    if (htSearch(*ht, x) == NULL) {
-                        puts(errors[ELEM_FOUND]);
-                        clean_buf();
-                        break;
+                    switch (hash_func_key) {
+                        case 0:
+                            if (htSearch(*ht, x) == NULL) {
+                                puts(errors[ELEM_FOUND]);
+                                clean_buf();
+                                break;
+                            }
+                            htDelete(*ht, x);
+                            break;
+                        case 1:
+                            if (htSearchHashStr(*ht, x) == NULL) {
+                                puts(errors[ELEM_FOUND]);
+                                clean_buf();
+                                break;
+                            }
+                            htDeleteHashStr(*ht, x);
+                            break;
                     }
-                    htDelete(*ht, x);
                     puts("Число удалено из таблицы");
                     clean_buf();
                     break;
@@ -183,9 +222,25 @@ void hashOperations(hash_table **ht, char *f_name, int *cmp_k) {
                 case PERCENT_FILL:
                     if (!*ht) {
                         puts(errors[EMPTY_TABLE]);
+                        break;
                     }
                     puts("Процент заполненности таблицы:");
                     printf("%% = %d\n", htFillPercent(*ht));
+                    break;
+                case RESTRUCT:
+                    puts("Таблица будет пересобрана другой хеш функцией");
+                    reHash(*ht);
+                    hash_func_key = 1;
+                    break;
+                case CHANGE_CMP:
+                    puts("Введите новое число сравнений");
+                    if (scanf("%d", cmp_k) != 1) {
+                        puts(errors[ERR_INPUT]);
+                        clean_buf();
+                        break;
+                    }
+                    puts("Новое число задано.");
+                    clean_buf();
                     break;
             }
         }

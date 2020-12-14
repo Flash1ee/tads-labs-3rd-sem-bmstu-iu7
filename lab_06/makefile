@@ -3,7 +3,7 @@ INCPATH=./inc/
 OBJPATH=./out/
 SRCPATH=./src/
 DOCSPATH=./docs/
-CFLAGS=-std=c99 -I$(INCPATH) -Wall -D NDEBUG -O0 -c
+CFLAGS=-std=c99 -I$(INCPATH) -D NDEBUG -O3 -c
 LFLAGS=--coverage -lm
 DIR_CR=mkdir -p
 INC:=$(wildcard $(INCPATH)*.h)

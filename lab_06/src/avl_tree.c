@@ -57,7 +57,37 @@ avl_node_t *avlBalance(avl_node_t *node) {
 
     return node;  // Balance not required
 }
-
+avl_node_t *readAvlFromFile(const char *name) {
+    if (!name) {
+        return NULL;
+    }
+    FILE *in = fopen(name, "r");
+    if (!in) {
+        fprintf(stderr, "%s\n", "OPEN FAILED");
+        return NULL;
+    }
+    avl_node_t *tree = avlRead(in);
+    fclose(in);
+    return tree;
+}
+avl_node_t *avlRead(FILE *in) {
+    if (!in) {
+        return NULL;
+    }
+    int temp;
+    avl_node_t *root = NULL;
+    int i = 0;
+    while (fscanf(in, "%d", &temp) == 1) {
+        i++;
+        root = avlInsert(root, temp);
+    }
+    if (ferror(in) || !feof(in))
+    {
+        freeAvl(root);
+        return NULL;
+    }
+    return root;
+}
 avl_node_t *avlInsert(avl_node_t *node, int value) {
     if (!node) {
         node = calloc(1, sizeof(avl_node_t));

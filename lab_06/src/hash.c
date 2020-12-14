@@ -3,26 +3,37 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "hash.h"
+
+
 #define ALLOC_ERR 1
 #define MAX_COLLISION 2
 #define NOT_FOUND 3
 
-#include "hash.h"
+#define INIT_SIZE 53
+
+static ht_item HT_DELETED_ITEM = {0, 0};
+
+
 
 hash_table *htHashTableCreate(int init_size) {
     hash_table *ht = calloc(1, sizeof(hash_table));
     if (!ht) {
         return NULL;
     }
-    ht->ht_items = calloc(init_size, sizeof(ht_item *));
+    ht->base_size = init_size;
+    ht->size = next_prime(init_size);
+    ht->count = 0;
+    ht->ht_items = calloc(ht->size, sizeof(ht_item *));
     if (!ht->ht_items) {
         free(ht);
         return NULL;
     }
-    ht->size = init_size;
-    ht->count = 0;
 
     return ht;
+}
+hash_table *ht_new() {
+    return htHashTableCreate(INIT_SIZE);
 }
 
 void htHashTableDestroy(hash_table *table) {
@@ -34,7 +45,66 @@ void htHashTableDestroy(hash_table *table) {
     free(table->ht_items);
     free(table);
 }
+static void htResize(hash_table *ht, const int base_size) {
+    if (base_size < INIT_SIZE) {
+        return;
+    }
+    hash_table *new_ht = htHashTableCreate(base_size);
+    for (int i = 0; i < ht->size; i++) {
+        ht_item *item = ht->ht_items[i];
+        if (item != NULL && item != &HT_DELETED_ITEM) {
+            htInsert(new_ht, item->value, INIT_SIZE);
+        }
+    }
 
+    ht->base_size = new_ht->base_size;
+    ht->count = new_ht->count;
+
+    // To delete new_ht, we give it ht's size and items
+    const int tmp_size = ht->size;
+    ht->size = new_ht->size;
+    new_ht->size = tmp_size;
+
+    ht_item **tmp_items = ht->ht_items;
+    ht->ht_items = new_ht->ht_items;
+    new_ht->ht_items = tmp_items;
+
+    htHashTableDestroy(new_ht);
+}
+void reHash(hash_table *ht) {
+    hash_table *new_ht = htHashTableCreate(ht->base_size);
+    for (int i = 0; i < ht->size; i++) {
+        ht_item *item = ht->ht_items[i];
+        if (item != NULL && item != &HT_DELETED_ITEM) {
+            htInsertHashStr(new_ht, item->value, ht->base_size);
+        }
+    }
+
+    ht->base_size = new_ht->base_size;
+    ht->count = new_ht->count;
+
+    // To delete new_ht, we give it ht's size and items
+    const int tmp_size = ht->size;
+    ht->size = new_ht->size;
+    new_ht->size = tmp_size;
+
+    ht_item **tmp_items = ht->ht_items;
+    ht->ht_items = new_ht->ht_items;
+    new_ht->ht_items = tmp_items;
+
+    htHashTableDestroy(new_ht);
+}
+
+static void htResizeUp(hash_table* ht) {
+    const int new_size = ht->base_size * 2;
+    htResize(ht, new_size);
+}
+
+
+static void htResizeDown(hash_table* ht) {
+    const int new_size = ht->base_size / 2;
+    htResize(ht, new_size);
+}
 // ht_item *htHashItemCreate(int key, int value) {
 //     ht_item *item = malloc(sizeof(ht_item));
 //     if (!item) {
@@ -88,7 +158,6 @@ int htHashStr(const int value, const int a, const int ht_size) {
 
     return (int)hash;
 }
-static ht_item HT_DELETED_ITEM = {0, 0};
 
 // int htInsert(hash_table *table, const int key, const int value, const int max_iter) {
 //     ht_item *item = htHashItemCreate(key, value);
@@ -119,6 +188,10 @@ static ht_item HT_DELETED_ITEM = {0, 0};
 // }
 
 int htInsert(hash_table *table, const int value, const int max_iter) {
+    const int load = table->count * 100 / table->size;
+    if (load > 70) {
+        htResizeUp(table);
+    }
     ht_item *item = htHashItemCreate(value);
     if (!item) {
         return ALLOC_ERR;
@@ -126,7 +199,7 @@ int htInsert(hash_table *table, const int value, const int max_iter) {
     int index = htHashDiv(value, table->size);
     ht_item *cur_item = table->ht_items[index];
 
-    int i = 1;
+    int i = 0;
     while (cur_item != NULL && i < max_iter && item != &HT_DELETED_ITEM) {
         if (value == cur_item->value) {
             htHashItemDestroy(cur_item);
@@ -134,6 +207,9 @@ int htInsert(hash_table *table, const int value, const int max_iter) {
             return EXIT_SUCCESS;
         }
         index++;
+        if (index >= table->size) {
+            index = 0;
+        }
         cur_item = table->ht_items[index];
         i++;
     }
@@ -145,7 +221,41 @@ int htInsert(hash_table *table, const int value, const int max_iter) {
     table->count++;
     return EXIT_SUCCESS;
 }
+int htInsertHashStr(hash_table *table, const int value, int max_iter) {
+    const int load = table->count * 100 / table->size;
+    if (load > 70) {
+        htResizeUp(table);
+    }
+    ht_item *item = htHashItemCreate(value);
+    if (!item) {
+        return ALLOC_ERR;
+    }
+    int a = next_prime(table->base_size);
+    int index = htHashStr(value, a, table->size);
+    ht_item *cur_item = table->ht_items[index];
 
+    int i = 1;
+    while (cur_item != NULL && item != &HT_DELETED_ITEM) {
+        if (value == cur_item->value) {
+            htHashItemDestroy(cur_item);
+            table->ht_items[index] = item;
+            return EXIT_SUCCESS;
+        }
+        index++;
+        if (index == table->size) {
+            index = index % table->size;
+        }
+        cur_item = table->ht_items[index];
+        i++;
+    }
+    if (i == max_iter) {
+        htHashItemDestroy(item);
+        return MAX_COLLISION;
+    }
+    table->ht_items[index] = item;
+    table->count++;
+    return EXIT_SUCCESS;
+}
 // ht_item *htSearch(hash_table *table, int key) {
 //     int index = htHashDiv(key, table->size);
 //     ht_item *item = table->ht_items[index];
@@ -161,11 +271,33 @@ int htInsert(hash_table *table, const int value, const int max_iter) {
 ht_item *htSearch(hash_table *table, int value) {
     int index = htHashDiv(value, table->size);
     ht_item *item = table->ht_items[index];
-    while (item != NULL && item != &HT_DELETED_ITEM) {
+    int i = 0;
+    while (item != NULL && item != &HT_DELETED_ITEM && i < table->size) {
         if (value == item->value) {
             return item;
         }
         index++;
+        if (index % table->size == 0) {
+            index = 0;
+        }
+        item = table->ht_items[index];
+        i++;
+    }
+    return NULL;
+}
+ht_item *htSearchHashStr(hash_table *table, int value) {
+    int index = htHashStr(value, table->size, table->size);
+    ht_item *item = table->ht_items[index];
+    int i = 0;
+    while (item != NULL && item != &HT_DELETED_ITEM && i < table->size) {
+        if (value == item->value) {
+            return item;
+        }
+        index++;
+        i++;
+          if (index % table->size == 0) {
+            index = 0;
+        }
         item = table->ht_items[index];
     }
     return NULL;
@@ -186,7 +318,29 @@ ht_item *htSearch(hash_table *table, int value) {
 //     return EXIT_SUCCESS;
 // }
 int htDelete(hash_table *table, int value) {
+    const int load = table->count * 100 / table->size;
+    if (load < 10) {
+        htResizeDown(table);
+    }
     int index = htHashDiv(value, table->size);
+    ht_item *item = table->ht_items[index];
+    while (item != NULL && item != &HT_DELETED_ITEM) {
+        if (item->value == value) {
+            htHashItemDestroy(item);
+            table->ht_items[index] = &HT_DELETED_ITEM;
+        }
+        index++;
+        item = table->ht_items[index];
+    }
+    table->count--;
+    return EXIT_SUCCESS;
+}
+int htDeleteHashStr(hash_table *table, int value) {
+    const int load = table->count * 100 / table->size;
+    if (load < 10) {
+        htResizeDown(table);
+    }
+    int index = htHashStr(value,table->size, table->size);
     ht_item *item = table->ht_items[index];
     while (item != NULL && item != &HT_DELETED_ITEM) {
         if (item->value == value) {
@@ -221,7 +375,9 @@ int readHashFromFile(hash_table **ht, const char *f_name, int cmp_k) {
         DBG_PRINT("%s", "OPEN FAILED\n");
         return -1;
     }
-    *ht = htHashTableCreate(INIT_SIZE);
+    if (!*ht) {
+        *ht = htHashTableCreate(INIT_SIZE);
+    }
     if (!*ht) {
         fclose(in);
         return -1;
@@ -253,7 +409,6 @@ int readHashFromFile(hash_table **ht, const char *f_name, int cmp_k) {
 int htFillPercent(hash_table *ht) {
     return (ht->count / (double)ht->size) * 100;
 }
-
 
 /*
  * Return whether x is prime or not
@@ -289,20 +444,4 @@ int next_prime(int x) {
         x++;
     }
     return x;
-}
-
-static hash_table* ht_new_sized(const int base_size) {
- hash_table* ht = xmalloc(sizeof(hash_table));
- ht->base_size = base_size;
-
- ht->size = next_prime(ht->base_size);
-
- ht->count = 0;
- ht->items = xcalloc((size_t)ht->size, sizeof(ht_item*));
- return ht;
-}
-
-
-ht_hash_table* ht_new() {
- return ht_new_sized(HT_INITIAL_BASE_SIZE);
 }

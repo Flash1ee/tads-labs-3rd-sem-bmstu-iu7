@@ -31,8 +31,10 @@ tree_node_t *readTree(FILE *in)
     int temp;
     tree_node_t *root = NULL;
     tree_node_t *node = NULL;
+    int i = 0;
     while (fscanf(in, "%d", &temp) == 1)
     {
+        i++;
         DBG_PRINT("%s\n", "READ NUM");
         node = createNode(temp);
         if (!node)
@@ -47,6 +49,7 @@ tree_node_t *readTree(FILE *in)
         freeTree(root);
         return NULL;
     }
+    DBG_PRINT("Считано %d\n", i);
     return root;
 }
 
@@ -78,8 +81,10 @@ void freeTree(tree_node_t *tree)
 {
     inTreeLook(tree, freeNode, NULL);
 }
+static int i = 0;
 void inTreeLook(tree_node_t *tree, action_t visit, void *arg)
 {
+    i++;
     if (tree == NULL)
     {
         return;
