@@ -53,4 +53,4 @@ clean:
 	rm -fv $(OBJPATH)*.gcno
 	rm -fv $(OBJPATH)*.gcda
 	rm -fv $(OBJPATH)*.lastbuildstate
-	rm ./data/*.gv
+	rm -fv ./data/*.gv
